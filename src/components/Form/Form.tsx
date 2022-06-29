@@ -21,6 +21,16 @@ export const Form = () => {
         !isValid ? setEmailError(true) : setEmailError(false)
     }
 
+    const handleNameChange = (e: {target: {value: string}}) => {
+        setName(e.target.value)
+        const isValid =  e.target.value
+            .toLowerCase()
+            .match(
+                /^([a-zA-Z]{3,30})+ ([a-zA-Z]{3,30})+$/
+            );
+        !isValid ? setNameError(true) : setNameError(false)
+    }
+
     return (
         <main>
             <div className="circle" />
@@ -32,7 +42,7 @@ export const Form = () => {
                             type="text"
                             placeholder="Имя Фамилия"
                             value={name}
-                            onChange={({ target: {value} }) => setName(value)}
+                            onChange={(e) => handleNameChange(e)}
                         />
                         {nameError &&
                             <div className="input_error">Пожалуйста, введите корректно имя и фамилию</div>}
