@@ -4,13 +4,19 @@ import { useState } from 'react';
 export const Form = () => {
     const [name, setName] = useState<string>('')
     const [nameError, setNameError] = useState<boolean>(false)
+
     const [phone, setPhone] = useState<string>('')
     const [phoneError, setPhoneError] = useState<boolean>(false)
+
     const [email, setEmail] = useState<string>('')
     const [emailError, setEmailError] = useState<boolean>(false)
+
     const [birthday, setBirthday] = useState<string>('')
+
     const [massage, setMassage] = useState<string>('')
     const [massageError, setMassageError] = useState<boolean>(false)
+
+    const [responseMessage, setResponseMessage] = useState<string>("")
 
     const handleEmailChange = (e: {target: {value: string}}) => {
         setEmail(e.target.value)
@@ -37,7 +43,16 @@ export const Form = () => {
         let val = e.target.value;
         val = val.replace(/\D/g, '');
         console.log(val)
-        let num = `+${val.substring(0, 1)} ${val.length > 1 ? "(" : ""}${val.substring(1, 4)}${val.length > 4 ? ")" : ""} ${val.substring(4, 7)}${val.length > 7 ? "-" : ""}${val.substring(7, 9)}${val.length > 9 ? "-" : ""}${val.substring(9, 11)}`;
+        let num = `
+            +${val.substring(0, 1)} 
+               ${val.length > 1 ? "(" : ""}
+               ${val.substring(1, 4)}
+               ${val.length > 4 ? ")" : ""} 
+               ${val.substring(4, 7)}
+               ${val.length > 7 ? "-" : ""}
+               ${val.substring(7, 9)}
+               ${val.length > 9 ? "-" : ""}
+               ${val.substring(9, 11)}`;
         num = num.trim();
         if (num.length !== 18) {
             setPhoneError(true)
@@ -57,7 +72,43 @@ export const Form = () => {
         }
     }
 
+    const handleSubmitForm = () => {
+        submitForm()
+            .then(r => {
+                setResponseMessage(r.success)
+                setName('')
+                setPhone('')
+                setEmail('')
+                setBirthday('')
+                setMassage('')
+            }, (r) => {
+                setResponseMessage(r.error)
+                throw new Error(r);
+            })
+    }
 
+    const submitForm = async () => {
+        try {
+            const response = await fetch("url", {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    birthday: birthday,
+                    massage: massage
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const json = await response.json();
+            return json
+        } catch (error) {
+            console.log(error)
+            return error
+        }
+    }
 
     return (
         <main>
@@ -116,8 +167,11 @@ export const Form = () => {
                         <div className="input_error">Сообщение слишком {massage.length > 300 && "длинное"}{massage.length < 10 && "короткое"}</div>}
                     </div>
                 </div>
-                <button type="submit">Отправить</button>
+                <button type="submit" onSubmit={handleSubmitForm}>Отправить</button>
             </div>
+            {responseMessage && (
+                <div className="response">{responseMessage}</div>
+            )}
         </main>
     )
 }
