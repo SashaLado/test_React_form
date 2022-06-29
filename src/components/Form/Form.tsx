@@ -22,7 +22,8 @@ export const Form = () => {
     }
 
     const handleNameChange = (e: {target: {value: string}}) => {
-        setName(e.target.value)
+        const result = e.target.value.toUpperCase();
+        setName(result)
         const isValid =  e.target.value
             .toLowerCase()
             .match(
