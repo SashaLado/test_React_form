@@ -10,6 +10,7 @@ export const Form = () => {
     const [emailError, setEmailError] = useState<boolean>(false)
     const [birthday, setBirthday] = useState<string>('')
     const [massage, setMassage] = useState<string>('')
+    const [massageError, setMassageError] = useState<boolean>(false)
 
     const handleEmailChange = (e: {target: {value: string}}) => {
         setEmail(e.target.value)
@@ -31,6 +32,32 @@ export const Form = () => {
             );
         !isValid ? setNameError(true) : setNameError(false)
     }
+
+    const handlePhoneChange = (e: {target: {value: string}}) => {
+        let val = e.target.value;
+        val = val.replace(/\D/g, '');
+        console.log(val)
+        let num = `+${val.substring(0, 1)} ${val.length > 1 ? "(" : ""}${val.substring(1, 4)}${val.length > 4 ? ")" : ""} ${val.substring(4, 7)}${val.length > 7 ? "-" : ""}${val.substring(7, 9)}${val.length > 9 ? "-" : ""}${val.substring(9, 11)}`;
+        num = num.trim();
+        if (num.length !== 18) {
+            setPhoneError(true)
+        } else {
+            setPhoneError(false)
+        }
+        setPhone(num)
+    }
+
+    const handleMassageChange = (e: {target: {value: string}}) => {
+        const value = e.target.value
+        setMassage(value)
+        if (value.length > 300 || value.length < 10) {
+            setMassageError(true)
+        } else {
+            setMassageError(false)
+        }
+    }
+
+
 
     return (
         <main>
@@ -63,7 +90,7 @@ export const Form = () => {
                             type="text"
                             placeholder="Номер телефона"
                             value={phone}
-                            onChange={({ target: {value} }) => setPhone(value)}
+                            onChange={(e) => handlePhoneChange(e)}
                         />
                         {phoneError &&
                         <div className="input_error">Пожалуйста, введите корректно номер телефона</div>}
@@ -80,9 +107,13 @@ export const Form = () => {
                     <div className="form__input">
                         <textarea
                             placeholder="Сообщение"
+                            minLength={10}
+                            maxLength={301}
                             value={massage}
-                            onChange={({ target: {value} }) => setMassage(value)}
+                            onChange={(e) => handleMassageChange(e)}
                         />
+                        {massageError &&
+                        <div className="input_error">Сообщение слишком {massage.length > 300 && "длинное"}{massage.length < 10 && "короткое"}</div>}
                     </div>
                 </div>
                 <button type="submit">Отправить</button>
