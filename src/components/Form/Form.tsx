@@ -43,7 +43,6 @@ export const Form = () => {
     const handlePhoneChange = (e: {target: {value: string}}) => {
         let val = e.target.value;
         val = val.replace(/\D/g, '');
-        console.log(val)
         let num = `
             +${val.substring(0, 1)} 
                ${val.length > 1 ? "(" : ""}
@@ -74,14 +73,14 @@ export const Form = () => {
     }
 
     const handleSubmitForm = () => {
-        setIsLoading(true)
-
         nameValidation(name)
         phoneValidation(phone)
         emailValidation(email)
         massageValidation(massage)
 
         if (!nameError && !phoneError && !emailError && !massageError) {
+            setIsLoading(true)
+
             submitForm()
                 .then(r => {
                     setResponseMessage(r.success)
@@ -181,7 +180,7 @@ export const Form = () => {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    onSubmit={handleSubmitForm}>
+                    onClick={handleSubmitForm}>
                     Отправить
                 </button>
             </div>
