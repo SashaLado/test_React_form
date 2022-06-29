@@ -17,25 +17,26 @@ export const Form = () => {
     const [massageError, setMassageError] = useState<boolean>(false)
 
     const [responseMessage, setResponseMessage] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const handleEmailChange = (e: {target: {value: string}}) => {
         setEmail(e.target.value)
-        const isValid =  e.target.value
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            );
+        emailValidation(e.target.value)
+    }
+
+    const emailValidation = (value: string) => {
+        const isValid = value.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
         !isValid ? setEmailError(true) : setEmailError(false)
     }
 
     const handleNameChange = (e: {target: {value: string}}) => {
         const result = e.target.value.toUpperCase();
         setName(result)
-        const isValid =  e.target.value
-            .toLowerCase()
-            .match(
-                /^([a-zA-Z]{3,30})+ ([a-zA-Z]{3,30})+$/
-            );
+        nameValidation(result)
+    }
+
+    const nameValidation = (value: string) => {
+        const isValid =  value.toLowerCase().match(/^([a-zA-Z]{3,30})+ ([a-zA-Z]{3,30})+$/);
         !isValid ? setNameError(true) : setNameError(false)
     }
 
@@ -54,37 +55,47 @@ export const Form = () => {
                ${val.length > 9 ? "-" : ""}
                ${val.substring(9, 11)}`;
         num = num.trim();
-        if (num.length !== 18) {
-            setPhoneError(true)
-        } else {
-            setPhoneError(false)
-        }
+        phoneValidation(num)
         setPhone(num)
+    }
+
+    const phoneValidation = (value: string) => {
+        setPhoneError(value.length !== 18)
     }
 
     const handleMassageChange = (e: {target: {value: string}}) => {
         const value = e.target.value
         setMassage(value)
-        if (value.length > 300 || value.length < 10) {
-            setMassageError(true)
-        } else {
-            setMassageError(false)
-        }
+        massageValidation(value)
+    }
+
+    const massageValidation = (value: string) => {
+        setMassageError(value.length > 300 || value.length < 10)
     }
 
     const handleSubmitForm = () => {
-        submitForm()
-            .then(r => {
-                setResponseMessage(r.success)
-                setName('')
-                setPhone('')
-                setEmail('')
-                setBirthday('')
-                setMassage('')
-            }, (r) => {
-                setResponseMessage(r.error)
-                throw new Error(r);
-            })
+        setIsLoading(true)
+
+        nameValidation(name)
+        phoneValidation(phone)
+        emailValidation(email)
+        massageValidation(massage)
+
+        if (!nameError && !phoneError && !emailError && !massageError) {
+            submitForm()
+                .then(r => {
+                    setResponseMessage(r.success)
+                    setName('')
+                    setPhone('')
+                    setEmail('')
+                    setBirthday('')
+                    setMassage('')
+                }, (r) => {
+                    setResponseMessage(r.error)
+                    throw new Error(r);
+                })
+                .finally(() => setIsLoading(false))
+        }
     }
 
     const submitForm = async () => {
@@ -167,7 +178,12 @@ export const Form = () => {
                         <div className="input_error">Сообщение слишком {massage.length > 300 && "длинное"}{massage.length < 10 && "короткое"}</div>}
                     </div>
                 </div>
-                <button type="submit" onSubmit={handleSubmitForm}>Отправить</button>
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    onSubmit={handleSubmitForm}>
+                    Отправить
+                </button>
             </div>
             {responseMessage && (
                 <div className="response">{responseMessage}</div>
